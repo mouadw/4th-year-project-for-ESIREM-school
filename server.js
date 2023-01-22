@@ -39,7 +39,7 @@ app.post("/submit_login", (req, res) => {
         password : req.body.password
     }
     console.log(user)
-    if(user.email=="mouad@contact.com" && user.password=="mouad2022"){
+    if((user.email=="mouad@contact.com" && user.password=="mouad2022")||(user.email=="elyousfi@contact.com" && user.password=="elyousfi2022")){
         // console.log("connected")
         res.render('index', {username: user.email});
         return;
