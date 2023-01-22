@@ -8,6 +8,11 @@ const es6Renderer = require('express-es6-template-engine')
 const cons = require('consolidate');
 const db = require("./database")
 
+const LocalStorage = require('node-localstorage').LocalStorage,
+localStorage = new LocalStorage('./scratch');
+
+
+
 // Server port
 const HTTP_PORT = 3000 
 
@@ -33,6 +38,11 @@ app.get("/login", (req, res, next) => {
     // res.json({"message":"API Backend for managing school students."})
     res.render('login', {});
 });
+app.get("/logout", (req, res, next) => {
+    // res.json({"message":"API Backend for managing school students."})
+    res.render('login', {});
+    localStorage.removeItem("connected")
+});
 app.post("/submit_login", (req, res) => {
     let user = {
         email : req.body.email,
@@ -42,6 +52,7 @@ app.post("/submit_login", (req, res) => {
     if((user.email=="mouad@contact.com" && user.password=="mouad2022")||(user.email=="elyousfi@contact.com" && user.password=="elyousfi2022")){
         // console.log("connected")
         res.render('index', {username: user.email});
+        localStorage.setItem("connected", true)
         return;
     }
     // console.log("error connecting")
@@ -49,27 +60,41 @@ app.post("/submit_login", (req, res) => {
         error: 'Error login in!'
     });   
 });
-// Insert here your API endpoints
+
+//  API endpoints
 app.get('/allproducts',(request, response)=>{
-    let query = "select * from products"
-    let params = []
-    db.all(query, params, (err, rows)=>{
-        if(err){
-            //response.status(400).json({"error":err.message});
-            response.render('404', {error: err.message});
-            return;
-        }
-        console.log(rows)
-        response.render('products/listproducts', {
+    if(localStorage.getItem("connected")){
+
+        let query = "select * from products"
+        let params = []
+        db.all(query, params, (err, rows)=>{
+            if(err){
+                //response.status(400).json({"error":err.message});
+                response.render('404', {error: err.message});
+                return;
+            }
+            console.log(rows)
+            response.render('products/listproducts', {
             message:"success",
             data:rows
-        });
+            });
+            
+            
         /*response.json({
             "message":"success",
             "data":rows
         });*/
+    
+        });
+    
+    
+    }
 
-    });
+    else{
+        response.render('404', {
+            error: 'Error, log in before trying!'
+        });
+    }
     // return response.send('Received a GET HTTP method')
 });
 app.get('/getproductbyid/:id',(request, response)=>{
@@ -91,7 +116,7 @@ app.get('/addproducts',(request, response)=>{
     var params =[]
     db.get(query, params, (err, rows)=>{
         if(err){
-            response.render('404', {error: err.message});
+        response.render('404', {error: err.message});
             return;
         }
         response.render('products/addproduct', {
@@ -197,6 +222,7 @@ app.post('/deleteproduct/:id',(request, response)=>{
     });
 })
 app.get('/addproduct',(request, response)=>{
+    if(localStorage.getItem("connected")){
     var query ='select * from students'
     let params = []
     
@@ -209,7 +235,14 @@ app.get('/addproduct',(request, response)=>{
             message:"success",
             students:rows
         });
-    });
+    });}
+    else{
+        response.render('404', {
+            error: 'Error, log in before trying!'
+        }); 
+    }
+    
+    
 });
 app.post('/addproducts',(request, response)=>{
     var data = {

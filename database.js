@@ -26,6 +26,10 @@ let db = new sqlite3.Database(DBSOURCE, (err) => {
                 db.run(insert, ["admin","admin@example.com",md5("admin123456")])
                 db.run(insert, ["user","user@example.com",md5("user123456")])
                 db.run(insert, ["mouad","mouad@example.com",md5("mouad2022")])
+                db.run(insert, ["mohammedelyousfi","elyousfi@example.com",md5("elyousfi2022")])
+                db.run(insert, ["elamri","elamri@example.com",md5("elamri2022")])
+
+
             }
         });
         db.run(`CREATE TABLE products (
